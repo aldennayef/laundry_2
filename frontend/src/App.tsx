@@ -1,122 +1,80 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { SettingsProvider } from './context/SettingsContext'
+import { ScrollToTop } from './components/common/ScrollToTop'
+import { ProtectedRoute } from './components/common/ProtectedRoute'
+import { RequireGuest } from './components/common/RequireGuest'
+import { PublicLayout } from './layouts/PublicLayout'
+import { MemberLayout } from './layouts/MemberLayout'
 
-function App() {
-  const [count, setCount] = useState(0)
+import { HomePage } from './pages/public/HomePage'
+import { ServicesPage } from './pages/public/ServicesPage'
+import { StoresPage } from './pages/public/StoresPage'
+import { StoreDetailPage } from './pages/public/StoreDetailPage'
+import { PromoPage } from './pages/public/PromoPage'
+import { BlogPage } from './pages/public/BlogPage'
+import { BlogDetailPage } from './pages/public/BlogDetailPage'
+import { AboutPage } from './pages/public/AboutPage'
+import { ContactPage } from './pages/public/ContactPage'
+import { StaticPage } from './pages/public/StaticPage'
+import { NotFoundPage } from './pages/public/NotFoundPage'
 
+import { LoginPage } from './pages/auth/LoginPage'
+import { RegisterPage } from './pages/auth/RegisterPage'
+
+import { DashboardHomePage } from './pages/member/DashboardHomePage'
+import { BookingsPage } from './pages/member/BookingsPage'
+import { BookingDetailPage } from './pages/member/BookingDetailPage'
+import { NewBookingPage } from './pages/member/NewBookingPage'
+import { LoyaltyPage } from './pages/member/LoyaltyPage'
+import { VouchersPage } from './pages/member/VouchersPage'
+import { AddressPage } from './pages/member/AddressPage'
+import { ProfilePage } from './pages/member/ProfilePage'
+
+export default function App() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <SettingsProvider>
+        <AuthProvider>
+          <ScrollToTop />
+          <Routes>
+            {/* Publik */}
+            <Route element={<PublicLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path="layanan" element={<ServicesPage />} />
+              <Route path="store" element={<StoresPage />} />
+              <Route path="store/:id" element={<StoreDetailPage />} />
+              <Route path="promo" element={<PromoPage />} />
+              <Route path="blog" element={<BlogPage />} />
+              <Route path="blog/:slug" element={<BlogDetailPage />} />
+              <Route path="tentang" element={<AboutPage />} />
+              <Route path="kontak" element={<ContactPage />} />
+              <Route path="p/:slug" element={<StaticPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
 
-      <div className="ticks"></div>
+            {/* Auth */}
+            <Route element={<RequireGuest />}>
+              <Route path="login" element={<LoginPage />} />
+              <Route path="register" element={<RegisterPage />} />
+            </Route>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            {/* Member */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="dashboard" element={<MemberLayout />}>
+                <Route index element={<DashboardHomePage />} />
+                <Route path="bookings" element={<BookingsPage />} />
+                <Route path="bookings/:id" element={<BookingDetailPage />} />
+                <Route path="booking/new" element={<NewBookingPage />} />
+                <Route path="loyalty" element={<LoyaltyPage />} />
+                <Route path="vouchers" element={<VouchersPage />} />
+                <Route path="address" element={<AddressPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+              </Route>
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </SettingsProvider>
+    </BrowserRouter>
   )
 }
-
-export default App
