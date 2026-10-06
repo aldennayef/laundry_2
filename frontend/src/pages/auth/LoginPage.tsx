@@ -14,6 +14,9 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const redirect = params.get('redirect') ?? '/dashboard'
+  // Pisahkan path dan hash agar deep-link seperti /dashboard#booking tetap
+  // menggulir ke bagian yang tepat setelah login.
+  const [redirectPath, redirectHash] = redirect.split('#')
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,7 +29,7 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password)
-      navigate(redirect, { replace: true })
+      navigate(redirectHash ? `${redirectPath}#${redirectHash}` : redirectPath, { replace: true })
     } catch (err) {
       setError(extractErrorMessage(err))
     } finally {
@@ -43,7 +46,7 @@ export function LoginPage() {
           Belum punya akun?{' '}
           <Link
             to={`/register?redirect=${encodeURIComponent(redirect)}`}
-            className="font-semibold text-sky-600 hover:text-sky-700"
+            className="font-semibold text-gold-600 hover:text-gold-700"
           >
             Daftar sekarang
           </Link>
@@ -74,7 +77,7 @@ export function LoginPage() {
           Masuk
         </Button>
       </form>
-      <p className="mt-4 rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-500">
+      <p className="mt-4 rounded-lg bg-parchment-100 px-3 py-2 text-xs text-ink-500">
         Akun demo: <span className="font-medium">customer@washe.test</span> / <span className="font-medium">password</span>
       </p>
     </AuthLayout>

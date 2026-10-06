@@ -1,17 +1,25 @@
 import type { ReactNode } from 'react'
 
+/**
+ * Section = pembungkus dengan ritme vertikal lega (banyak ruang putih).
+ * Padding dibuat konsisten agar antar-section terasa tenang, bukan bertumpuk.
+ */
 export function Section({
   children,
   className = '',
   id,
+  container = true,
 }: {
   children: ReactNode
   className?: string
   id?: string
+  container?: boolean
 }) {
   return (
-    <section id={id} className={`mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16 ${className}`}>
-      {children}
+    <section id={id} className={className}>
+      <div className={container ? 'mx-auto max-w-6xl px-5 py-20 sm:px-8 lg:py-28' : ''}>
+        {children}
+      </div>
     </section>
   )
 }
@@ -21,19 +29,46 @@ export function SectionHeading({
   title,
   description,
   center,
+  light,
+  action,
 }: {
   eyebrow?: string
   title: ReactNode
   description?: ReactNode
   center?: boolean
+  light?: boolean
+  action?: ReactNode
 }) {
   return (
-    <div className={`${center ? 'mx-auto max-w-2xl text-center' : 'max-w-2xl'}`}>
-      {eyebrow && (
-        <p className="text-xs font-semibold uppercase tracking-wider text-sky-600">{eyebrow}</p>
-      )}
-      <h2 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h2>
-      {description && <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>}
+    <div
+      className={`flex flex-wrap items-end gap-6 ${
+        center ? 'flex-col items-center text-center' : 'justify-between'
+      }`}
+    >
+      <div className={center ? 'mx-auto max-w-2xl' : 'max-w-2xl'}>
+        {eyebrow && (
+          <div className={`flex items-center gap-3 ${center ? 'justify-center' : ''}`}>
+            <span className="eyebrow text-accent-600">{eyebrow}</span>
+          </div>
+        )}
+        <h2
+          className={`font-display mt-3 text-3xl leading-[1.1] sm:text-4xl lg:text-[2.6rem] ${
+            light ? 'text-white' : 'text-ink-900'
+          }`}
+        >
+          {title}
+        </h2>
+        {description && (
+          <p
+            className={`mt-4 text-base leading-relaxed ${
+              light ? 'text-ink-300' : 'text-ink-600'
+            }`}
+          >
+            {description}
+          </p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }

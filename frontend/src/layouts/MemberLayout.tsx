@@ -1,22 +1,26 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useSettings } from '../context/SettingsContext'
-import { Price } from '../components/common/Price'
-
-const MENU = [
-  { to: '/dashboard', label: 'Ringkasan', icon: '🏠', end: true },
-  { to: '/dashboard/bookings', label: 'Booking Saya', icon: '🧺' },
-  { to: '/dashboard/booking/new', label: 'Booking Baru', icon: '➕' },
-  { to: '/dashboard/loyalty', label: 'Poin Loyalitas', icon: '⭐' },
-  { to: '/dashboard/vouchers', label: 'Voucher', icon: '🎟️' },
-  { to: '/dashboard/address', label: 'Alamat', icon: '📍' },
-  { to: '/dashboard/profile', label: 'Profil', icon: '👤' },
-]
+import { getDashboard } from '../api/customer'
+import { useAsync } from '../hooks/useAsync'
+import { Icon } from '../components/common/Icon'
+import { Modal } from '../components/common/Modal'
+import { ProfileSection } from '../pages/member/sections/ProfileSection'
 
 export function MemberLayout() {
   const { user, logout } = useAuth()
   const { siteName } = useSettings()
   const navigate = useNavigate()
+  const [profileOpen, setProfileOpen] = useState(false)
+
+  const { data } = useAsync(() => getDashboard(), [])
+
+  const displayName =
+    data?.profile.username ?? user?.username ?? data?.profile.email?.split('@')[0] ?? 'Member'
+  const initials = displayName.slice(0, 1).toUpperCase()
+  const role = data?.profile.membership_tier?.tier_name ?? user?.role ?? 'Member'
+  const hasNotification = (data?.active_bookings ?? 0) > 0
 
   async function handleLogout() {
     await logout()
@@ -24,78 +28,94 @@ export function MemberLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <NavLink to="/" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-600 text-sm font-bold text-white">
+    <div className="min-h-screen bg-parchment-50">
+      {/* Header atas — brand, search, notifikasi, chat, avatar, logout */}
+      <header className="sticky top-0 z-30 border-b border-parchment-200 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:px-6 lg:gap-5">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2.5">
+            <span className="font-display grid h-10 w-10 place-items-center rounded-full bg-ink-900 text-lg font-semibold text-gold-300">
               W
             </span>
-            <span className="text-lg font-bold text-slate-900">{siteName}</span>
+            <span className="font-display hidden text-2xl font-semibold tracking-wide text-ink-900 sm:block">
+              {siteName}
+            </span>
           </NavLink>
-          <div className="flex items-center gap-3">
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold text-slate-800">
-                {user?.username ?? user?.email}
-              </p>
-              <p className="text-xs text-slate-500">
-                Poin: <Price value={user?.balance ?? 0} className="font-medium" />
-              </p>
-            </div>
+
+          <label htmlFor="member-search" className="sr-only">
+            Cari pesanan atau layanan
+          </label>
+          <div className="relative hidden flex-1 sm:block">
+            <Icon
+              name="search"
+              size={18}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
+            />
+            <input
+              id="member-search"
+              type="search"
+              placeholder="Cari pesanan atau layanan…"
+              className="w-full rounded-full border border-parchment-200 bg-parchment-50 py-2.5 pl-11 pr-4 text-sm text-ink-800 placeholder:text-ink-400 focus:border-gold-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gold-100"
+            />
+          </div>
+
+          <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-2.5">
+            <button
+              type="button"
+              aria-label="Notifikasi"
+              className="relative grid h-10 w-10 place-items-center rounded-full text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-500"
+            >
+              <Icon name="bell" size={20} />
+              {hasNotification && (
+                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-gold-500 ring-2 ring-white" />
+              )}
+            </button>
+            <button
+              type="button"
+              aria-label="Pesan"
+              className="grid h-10 w-10 place-items-center rounded-full text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-500"
+            >
+              <Icon name="message" size={20} />
+            </button>
+
+            <div className="mx-1 hidden h-8 w-px bg-parchment-200 sm:block" aria-hidden="true" />
+
+            <button
+              type="button"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Buka profil member"
+              className="flex min-h-11 items-center gap-3 rounded-full px-1.5 py-1 text-left transition-colors hover:bg-parchment-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-500 sm:pr-3"
+            >
+              <span className="font-display grid h-9 w-9 place-items-center rounded-full bg-ink-900 text-sm font-semibold text-gold-300">
+                {initials}
+              </span>
+              <span className="hidden text-left sm:block">
+                <span className="block text-sm font-semibold leading-tight text-ink-900">
+                  {displayName}
+                </span>
+                <span className="block text-xs leading-tight text-ink-400">{role}</span>
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-100"
+              aria-label="Logout"
+              className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-500"
             >
-              Keluar
+              <Icon name="logout" size={18} />
+              <span className="hidden lg:inline">Logout</span>
             </button>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
-        <aside className="hidden w-60 shrink-0 lg:block">
-          <nav className="sticky top-20 space-y-1">
-            {MENU.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                    isActive
-                      ? 'bg-sky-50 text-sky-700'
-                      : 'text-slate-600 hover:bg-white hover:text-slate-900'
-                  }`
-                }
-              >
-                <span aria-hidden="true">{item.icon}</span>
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </aside>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+        <Outlet />
+      </main>
 
-        <div className="min-w-0 flex-1">
-          <nav className="mb-4 flex gap-1 overflow-x-auto pb-1 lg:hidden">
-            {MENU.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium ${
-                    isActive ? 'bg-sky-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-          <Outlet />
-        </div>
-      </div>
+      <Modal open={profileOpen} onClose={() => setProfileOpen(false)} title="Profil Member" size="lg">
+        <ProfileSection />
+      </Modal>
     </div>
   )
 }

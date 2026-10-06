@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react'
 
 const INPUT_CLASS =
-  'block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 disabled:bg-slate-50 disabled:text-slate-500'
+  'block w-full rounded-xl border-0 bg-white px-4 py-2.5 text-sm text-ink-900 shadow-sm ring-1 ring-inset ring-parchment-300 placeholder:text-ink-400 focus:ring-2 focus:ring-inset focus:ring-gold-500 disabled:bg-parchment-100 disabled:text-ink-400'
 
 interface FieldShellProps {
   label?: string
@@ -15,13 +15,13 @@ export function FieldShell({ label, hint, error, required, children }: FieldShel
   return (
     <label className="block space-y-1.5">
       {label && (
-        <span className="block text-sm font-medium text-slate-700">
+        <span className="block text-sm font-medium text-ink-700">
           {label}
-          {required && <span className="text-rose-500"> *</span>}
+          {required && <span className="text-gold-600"> *</span>}
         </span>
       )}
       {children}
-      {hint && !error && <span className="block text-xs text-slate-500">{hint}</span>}
+      {hint && !error && <span className="block text-xs text-ink-500">{hint}</span>}
       {error && <span className="block text-xs font-medium text-rose-600">{error}</span>}
     </label>
   )

@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useSettings } from '../../context/SettingsContext'
 import { Button, ButtonLink } from './Button'
+import { Icon } from './Icon'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Beranda', end: true },
@@ -28,17 +29,19 @@ export function PublicNavbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+    <header className="sticky top-0 z-40 border-b border-ink-200/80 bg-white/82 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+        <Link to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           {logo ? (
             <img src={logo} alt={siteName} className="h-8 w-auto" />
           ) : (
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-600 text-sm font-bold text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-ink-950 font-display text-base font-semibold text-accent-300 shadow-[0_14px_26px_-18px_rgba(12,10,9,0.85)]">
               W
             </span>
           )}
-          <span className="text-lg font-bold text-slate-900">{siteName}</span>
+          <span className="font-display text-2xl font-semibold leading-none text-ink-950">
+            {siteName}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -48,12 +51,21 @@ export function PublicNavbar() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  isActive ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-slate-100'
+                `relative px-3.5 py-2 text-sm font-medium transition-colors ${
+                  isActive ? 'text-ink-950' : 'text-ink-500 hover:text-ink-900'
                 }`
               }
             >
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  {item.label}
+                  <span
+                    className={`absolute inset-x-3.5 bottom-1 h-px bg-accent-500 transition-transform duration-200 ${
+                      isActive ? 'scale-x-100' : 'scale-x-0'
+                    }`}
+                  />
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -61,42 +73,37 @@ export function PublicNavbar() {
         <div className="hidden items-center gap-2 lg:flex">
           {isAuthenticated ? (
             <>
-              <ButtonLink to="/dashboard" variant="secondary">
+              <ButtonLink to="/dashboard" variant="ghost" size="sm">
                 {user?.username ?? user?.email ?? 'Akun'}
               </ButtonLink>
-              <ButtonLink to="/dashboard/booking/new">Booking Sekarang</ButtonLink>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Keluar
-              </Button>
+              <ButtonLink to="/dashboard#booking" variant="gold" size="sm">
+                Booking
+              </ButtonLink>
             </>
           ) : (
             <>
-              <ButtonLink to="/login" variant="secondary">
+              <ButtonLink to="/login" variant="ghost" size="sm">
                 Masuk
               </ButtonLink>
-              <ButtonLink to="/register">Daftar</ButtonLink>
+              <ButtonLink to="/register" variant="gold" size="sm">
+                Daftar
+              </ButtonLink>
             </>
           )}
         </div>
 
         <button
           type="button"
-          className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+          className="min-h-11 min-w-11 rounded-md p-2 text-ink-700 transition-colors hover:bg-ink-100 lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Buka menu"
         >
-          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? (
-              <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
-            ) : (
-              <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-            )}
-          </svg>
+          <Icon name={open ? 'close' : 'menu'} size={24} />
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-4 pt-2 lg:hidden">
+        <div className="border-t border-ink-200 bg-white px-5 pb-5 pt-3 lg:hidden">
           <nav className="flex flex-col">
             {NAV_ITEMS.map((item) => (
               <NavLink
@@ -105,8 +112,8 @@ export function PublicNavbar() {
                 end={item.end}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `rounded-lg px-3 py-2.5 text-sm font-medium ${
-                    isActive ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-100'
+                  `rounded-md px-4 py-3 text-sm font-medium transition-colors ${
+                    isActive ? 'bg-ink-950 text-white' : 'text-ink-600 hover:bg-ink-50'
                   }`
                 }
               >
@@ -114,14 +121,14 @@ export function PublicNavbar() {
               </NavLink>
             ))}
           </nav>
-          <div className="mt-3 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col gap-2">
             {isAuthenticated ? (
               <>
                 <ButtonLink to="/dashboard" variant="secondary" className="w-full">
                   Dashboard
                 </ButtonLink>
-                <ButtonLink to="/dashboard/booking/new" className="w-full">
-                  Booking Sekarang
+                <ButtonLink to="/dashboard#booking" variant="gold" className="w-full">
+                  Booking
                 </ButtonLink>
                 <Button variant="ghost" className="w-full" onClick={handleLogout}>
                   Keluar
@@ -132,7 +139,7 @@ export function PublicNavbar() {
                 <ButtonLink to="/login" variant="secondary" className="w-full">
                   Masuk
                 </ButtonLink>
-                <ButtonLink to="/register" className="w-full">
+                <ButtonLink to="/register" variant="gold" className="w-full">
                   Daftar
                 </ButtonLink>
               </>

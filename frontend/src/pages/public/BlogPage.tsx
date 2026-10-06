@@ -8,6 +8,7 @@ import { LoadingBlock } from '../../components/common/Spinner'
 import { EmptyState } from '../../components/common/EmptyState'
 import { Alert } from '../../components/common/Alert'
 import { formatDate } from '../../lib/format'
+import { Icon } from '../../components/common/Icon'
 
 export function BlogPage() {
   useDocumentTitle('Artikel')
@@ -29,7 +30,7 @@ export function BlogPage() {
           <EmptyState
             title="Belum ada artikel"
             description="Artikel dan tips akan segera dipublikasikan."
-            icon="📝"
+            icon={<Icon name="sparkle" size={26} />}
           />
         </div>
       )}
@@ -40,9 +41,9 @@ export function BlogPage() {
             <Link
               key={article.id}
               to={`/blog/${article.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-parchment-200 bg-white shadow-sm transition hover:shadow-md"
             >
-              <div className="h-44 w-full overflow-hidden bg-slate-100">
+              <div className="h-44 w-full overflow-hidden bg-parchment-100">
                 {article.thumbnail_url ? (
                   <img
                     src={article.thumbnail_url}
@@ -50,16 +51,16 @@ export function BlogPage() {
                     className="h-full w-full object-cover transition group-hover:scale-105"
                   />
                 ) : (
-                  <div className="grid h-full place-items-center text-3xl text-slate-300">📰</div>
+                  <div className="grid h-full place-items-center text-ink-300"><Icon name="sparkle" size={40} /></div>
                 )}
               </div>
               <div className="flex flex-1 flex-col p-5">
-                <p className="text-xs text-slate-400">{formatDate(article.published_at)}</p>
-                <h3 className="mt-2 text-base font-semibold text-slate-900 group-hover:text-sky-700">
+                <p className="text-xs text-ink-400">{formatDate(article.published_at)}</p>
+                <h3 className="mt-2 text-base font-semibold text-ink-900 group-hover:text-gold-700">
                   {article.title}
                 </h3>
-                <p className="mt-2 line-clamp-3 flex-1 text-sm text-slate-500">{article.excerpt}</p>
-                <span className="mt-4 text-sm font-semibold text-sky-600">Baca selengkapnya →</span>
+                <p className="mt-2 line-clamp-3 flex-1 text-sm text-ink-500">{article.excerpt}</p>
+                <span className="mt-4 text-sm font-semibold text-gold-600">Baca selengkapnya →</span>
               </div>
             </Link>
           ))}

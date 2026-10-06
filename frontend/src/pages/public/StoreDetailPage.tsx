@@ -32,7 +32,7 @@ export function StoreDetailPage() {
             title={store.store_name}
             description={store.address ?? undefined}
             action={
-              <ButtonLink to={isAuthenticated ? '/dashboard/booking/new' : '/login?redirect=%2Fdashboard%2Fbooking%2Fnew'}>
+              <ButtonLink to={isAuthenticated ? '/dashboard#booking' : '/login?redirect=/dashboard%23booking'}>
                 Booking di Cabang Ini
               </ButtonLink>
             }
@@ -40,50 +40,50 @@ export function StoreDetailPage() {
 
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {store.phone && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-slate-400">Telepon</p>
-                <p className="mt-1 text-sm text-slate-700">{store.phone}</p>
+              <div className="rounded-2xl border border-parchment-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase text-ink-400">Telepon</p>
+                <p className="mt-1 text-sm text-ink-700">{store.phone}</p>
               </div>
             )}
             {store.whatsapp_number && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-slate-400">WhatsApp</p>
-                <p className="mt-1 text-sm text-slate-700">{store.whatsapp_number}</p>
+              <div className="rounded-2xl border border-parchment-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase text-ink-400">WhatsApp</p>
+                <p className="mt-1 text-sm text-ink-700">{store.whatsapp_number}</p>
               </div>
             )}
             {store.operating_hours && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-slate-400">Jam Operasional</p>
-                <p className="mt-1 text-sm text-slate-700">{store.operating_hours}</p>
+              <div className="rounded-2xl border border-parchment-200 bg-white p-4">
+                <p className="text-xs font-semibold uppercase text-ink-400">Jam Operasional</p>
+                <p className="mt-1 text-sm text-ink-700">{store.operating_hours}</p>
               </div>
             )}
           </div>
 
           <div className="mt-10">
-            <h2 className="text-lg font-bold text-slate-900">Layanan Tersedia</h2>
+            <h2 className="font-display text-2xl font-medium text-ink-900">Layanan Tersedia</h2>
             {store.services && store.services.length > 0 ? (
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {store.services.map((service) => (
-                  <div key={service.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-                    <span className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
+                  <div key={service.id} className="rounded-2xl border border-parchment-200 bg-white p-5">
+                    <span className="inline-flex rounded-full bg-gold-50 px-2.5 py-1 text-xs font-medium text-gold-700">
                       {service.category?.category_name ?? 'Layanan'}
                     </span>
-                    <h3 className="mt-3 text-base font-semibold text-slate-900">{service.service_name}</h3>
-                    <p className="mt-1 text-sm text-slate-500">{service.description}</p>
+                    <h3 className="mt-3 text-base font-semibold text-ink-900">{service.service_name}</h3>
+                    <p className="mt-1 text-sm text-ink-500">{service.description}</p>
                     <div className="mt-3 flex items-baseline gap-1">
-                      <Price value={service.price} className="text-lg font-bold text-sky-700" />
-                      {service.unit && <span className="text-sm text-slate-500">/{service.unit}</span>}
+                      <Price value={service.price} className="text-lg font-bold text-gold-700" />
+                      {service.unit && <span className="text-sm text-ink-500">/{service.unit}</span>}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-slate-500">Belum ada layanan untuk cabang ini.</p>
+              <p className="mt-3 text-sm text-ink-500">Belum ada layanan untuk cabang ini.</p>
             )}
           </div>
 
           {store.latitude && store.longitude && (
-            <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200">
+            <div className="mt-10 overflow-hidden rounded-2xl border border-parchment-200">
               <iframe
                 title={`Peta ${store.store_name}`}
                 className="h-72 w-full"

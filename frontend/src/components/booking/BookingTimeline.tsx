@@ -4,7 +4,7 @@ import { formatDateTime } from '../../lib/format'
 
 export function BookingTimeline({ logs }: { logs: BookingStatusLog[] }) {
   if (!logs || logs.length === 0) {
-    return <p className="text-sm text-slate-500">Belum ada riwayat status.</p>
+    return <p className="text-sm text-ink-500">Belum ada riwayat status.</p>
   }
 
   const ordered = [...logs].sort(
@@ -12,7 +12,7 @@ export function BookingTimeline({ logs }: { logs: BookingStatusLog[] }) {
   )
 
   return (
-    <ol className="relative space-y-5 border-l border-slate-200 pl-6">
+    <ol className="relative space-y-6 border-l border-parchment-200 pl-6">
       {ordered.map((log) => {
         const meta = statusMeta(log.status)
         return (
@@ -21,9 +21,9 @@ export function BookingTimeline({ logs }: { logs: BookingStatusLog[] }) {
               className={`absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full ring-4 ring-white ${meta.dot}`}
               aria-hidden="true"
             />
-            <p className="text-sm font-semibold text-slate-800">{log.status_label}</p>
-            <p className="text-xs text-slate-400">{formatDateTime(log.created_at)}</p>
-            {log.note && <p className="mt-1 text-sm text-slate-500">{log.note}</p>}
+            <p className="text-sm font-semibold text-ink-900">{log.status_label}</p>
+            <p className="text-xs text-ink-400">{formatDateTime(log.created_at)}</p>
+            {log.note && <p className="mt-1 text-sm text-ink-500">{log.note}</p>}
           </li>
         )
       })}

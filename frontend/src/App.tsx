@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { SettingsProvider } from './context/SettingsContext'
 import { ScrollToTop } from './components/common/ScrollToTop'
@@ -22,14 +22,7 @@ import { NotFoundPage } from './pages/public/NotFoundPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 
-import { DashboardHomePage } from './pages/member/DashboardHomePage'
-import { BookingsPage } from './pages/member/BookingsPage'
-import { BookingDetailPage } from './pages/member/BookingDetailPage'
-import { NewBookingPage } from './pages/member/NewBookingPage'
-import { LoyaltyPage } from './pages/member/LoyaltyPage'
-import { VouchersPage } from './pages/member/VouchersPage'
-import { AddressPage } from './pages/member/AddressPage'
-import { ProfilePage } from './pages/member/ProfilePage'
+import { MemberPage } from './pages/member/MemberPage'
 
 export default function App() {
   return (
@@ -59,17 +52,19 @@ export default function App() {
               <Route path="register" element={<RegisterPage />} />
             </Route>
 
-            {/* Member */}
+            {/* Member — satu halaman dashboard yang mencakup semua tindakan.
+                URL lama tetap dialihkan agar tautan/deep-link tidak rusak. */}
             <Route element={<ProtectedRoute />}>
               <Route path="dashboard" element={<MemberLayout />}>
-                <Route index element={<DashboardHomePage />} />
-                <Route path="bookings" element={<BookingsPage />} />
-                <Route path="bookings/:id" element={<BookingDetailPage />} />
-                <Route path="booking/new" element={<NewBookingPage />} />
-                <Route path="loyalty" element={<LoyaltyPage />} />
-                <Route path="vouchers" element={<VouchersPage />} />
-                <Route path="address" element={<AddressPage />} />
-                <Route path="profile" element={<ProfilePage />} />
+                <Route index element={<MemberPage />} />
+
+                <Route path="booking/new" element={<Navigate to="/dashboard#booking" replace />} />
+                <Route path="bookings" element={<Navigate to="/dashboard#pesanan" replace />} />
+                <Route path="bookings/:id" element={<Navigate to="/dashboard#pesanan" replace />} />
+                <Route path="loyalty" element={<Navigate to="/dashboard#poin" replace />} />
+                <Route path="vouchers" element={<Navigate to="/dashboard#voucher" replace />} />
+                <Route path="address" element={<Navigate to="/dashboard#alamat" replace />} />
+                <Route path="profile" element={<Navigate to="/dashboard#profil" replace />} />
               </Route>
             </Route>
           </Routes>

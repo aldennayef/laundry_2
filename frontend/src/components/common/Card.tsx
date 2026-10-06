@@ -2,7 +2,9 @@ import type { ReactNode } from 'react'
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}>
+    <div
+      className={`rounded-2xl border border-parchment-200 bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04)] ${className}`}
+    >
       {children}
     </div>
   )
@@ -18,10 +20,10 @@ export function CardHeader({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-parchment-200 px-6 py-5">
       <div>
-        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-        {description && <p className="mt-0.5 text-sm text-slate-500">{description}</p>}
+        <h3 className="font-display text-xl font-medium text-ink-900">{title}</h3>
+        {description && <p className="mt-0.5 text-sm text-ink-500">{description}</p>}
       </div>
       {action}
     </div>
@@ -29,5 +31,5 @@ export function CardHeader({
 }
 
 export function CardBody({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`px-5 py-4 ${className}`}>{children}</div>
+  return <div className={`px-6 py-5 ${className}`}>{children}</div>
 }

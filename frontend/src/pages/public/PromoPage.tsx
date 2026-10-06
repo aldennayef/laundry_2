@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext'
 import { ButtonLink } from '../../components/common/Button'
 import { formatDate } from '../../lib/format'
 import { formatCurrency } from '../../lib/format'
+import { Icon } from '../../components/common/Icon'
 
 export function PromoPage() {
   useDocumentTitle('Promo')
@@ -25,7 +26,7 @@ export function PromoPage() {
         title="Promo & Penawaran Spesial"
         description="Manfaatkan promo terbaru dan kumpulkan poin untuk ditukar dengan voucher."
         action={
-          <ButtonLink to={isAuthenticated ? '/dashboard/vouchers' : '/register'}>
+          <ButtonLink to={isAuthenticated ? '/dashboard#voucher' : '/register'} variant="gold">
             {isAuthenticated ? 'Voucher Saya' : 'Daftar untuk Klaim'}
           </ButtonLink>
         }
@@ -39,7 +40,7 @@ export function PromoPage() {
           <EmptyState
             title="Belum ada promo"
             description="Promo baru akan segera hadir. Pantau terus halaman ini."
-            icon="🎉"
+            icon={<Icon name="sparkles" size={26} />}
           />
         </div>
       )}
@@ -49,16 +50,23 @@ export function PromoPage() {
           {banners.map((banner) => (
             <div
               key={banner.id}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+              className="group overflow-hidden rounded-2xl border border-parchment-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-gold-200 hover:shadow-[0_20px_45px_-28px_rgba(28,25,23,0.4)]"
             >
               {banner.image_url && (
-                <img src={banner.image_url} alt={banner.title ?? 'Promo'} className="h-48 w-full object-cover" />
+                <div className="h-52 overflow-hidden bg-parchment-100">
+                  <img
+                    src={banner.image_url}
+                    alt={banner.title ?? 'Promo'}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
               )}
-              <div className="p-5">
-                <h3 className="text-lg font-semibold text-slate-900">{banner.title ?? 'Promo'}</h3>
-                {banner.subtitle && <p className="mt-1 text-sm text-slate-500">{banner.subtitle}</p>}
+              <div className="p-6">
+                <h3 className="font-display text-2xl font-medium text-ink-900">{banner.title ?? 'Promo'}</h3>
+                {banner.subtitle && <p className="mt-1 text-sm text-ink-500">{banner.subtitle}</p>}
                 {(banner.start_date || banner.end_date) && (
-                  <p className="mt-3 text-xs text-slate-400">
+                  <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-400">
+                    <Icon name="clock" size={13} className="text-gold-500" />
                     Berlaku {formatDate(banner.start_date)} – {formatDate(banner.end_date)}
                   </p>
                 )}
@@ -67,9 +75,9 @@ export function PromoPage() {
                     href={banner.link_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-block text-sm font-semibold text-sky-600 hover:text-sky-700"
+                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gold-700 hover:text-gold-600"
                   >
-                    Selengkapnya →
+                    Selengkapnya <Icon name="arrowUpRight" size={15} />
                   </a>
                 )}
               </div>
@@ -78,14 +86,21 @@ export function PromoPage() {
         </div>
       )}
 
-      <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="text-lg font-bold text-slate-900">Cara Mendapatkan Promo</h2>
-        <ul className="mt-4 space-y-2 text-sm text-slate-600">
-          <li>• Kumpulkan poin dari setiap transaksi yang selesai.</li>
-          <li>• Tukarkan poin dengan voucher di halaman Voucher.</li>
-          <li>• Gunakan voucher saat membuat booking untuk potongan harga.</li>
+      <div className="mt-14 rounded-2xl border border-parchment-200 bg-white p-8">
+        <h2 className="font-display text-2xl font-medium text-ink-900">Cara Mendapatkan Promo</h2>
+        <ul className="mt-5 grid gap-3 text-sm text-ink-600 sm:grid-cols-3">
+          {[
+            'Kumpulkan poin dari setiap transaksi yang selesai.',
+            'Tukarkan poin dengan voucher di halaman Voucher.',
+            'Gunakan voucher saat booking untuk potongan harga.',
+          ].map((line) => (
+            <li key={line} className="flex gap-2.5 rounded-xl bg-parchment-50 px-4 py-3">
+              <Icon name="check" size={16} className="mt-0.5 shrink-0 text-gold-600" />
+              {line}
+            </li>
+          ))}
         </ul>
-        <p className="mt-4 text-xs text-slate-400">
+        <p className="mt-4 text-xs text-ink-400">
           * Contoh voucher tersedia mulai dari potongan {formatCurrency(10000, currency)}.
         </p>
       </div>

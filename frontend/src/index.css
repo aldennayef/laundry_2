@@ -1,15 +1,162 @@
 @import 'tailwindcss';
 
-:root {
-  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-body {
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ---------------------------------------------------------------------------
+   Design tokens - "Quiet Atelier Premium".
+   Prinsip:
+   - Netral (ink) mendominasi; warna hanya aksen, dipakai hemat.
+   - Tipografi tegas: Inter untuk UI/teks, Cormorant Garamond hanya untuk display.
+   - Banyak ruang putih, garis rambut (hairline) sebagai pemisah, bukan kartu.
+   --------------------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+
+  /* Netral — tulang punggung tampilan (charcoal → putih hangat) */
+  --color-ink-50: #f7f7f6;
+  --color-ink-100: #efeeec;
+  --color-ink-200: #e2e0dd;
+  --color-ink-300: #c8c5c0;
+  --color-ink-400: #9b978f;
+  --color-ink-500: #6f6b63;
+  --color-ink-600: #4b4842;
+  --color-ink-700: #33312d;
+  --color-ink-800: #201f1c;
+  --color-ink-900: #141311;
+  --color-ink-950: #0b0a09;
+
+  /* Champagne bronze: aksen premium, dipakai hemat untuk CTA dan detail. */
+  --color-accent-50: #fbf7ef;
+  --color-accent-100: #f2e5cf;
+  --color-accent-200: #e2c99b;
+  --color-accent-300: #cfaa67;
+  --color-accent-400: #b98e47;
+  --color-accent-500: #9a7441;
+  --color-accent-600: #7b5a35;
+  --color-accent-700: #60462d;
+  --color-accent-800: #443224;
+  --color-accent-900: #2c2119;
+
+  /* Sage hanya sebagai warna pendukung kecil agar palet tidak satu nada. */
+  --color-sage-100: #e9efeb;
+  --color-sage-300: #a9b9ad;
+  --color-sage-600: #52685a;
+
+  /* Latar */
+  --color-sand-50: #fbfaf8;
+  --color-sand-100: #f5f3ef;
+  --color-sand-200: #eae7e1;
+
+  /* --- Alias kompatibilitas ------------------------------------------------
+     Token lama (gold-*, parchment-*, jade-*) dipertahankan sebagai alias agar
+     komponen yang belum ditulis ulang otomatis mengikuti palet baru.
+     Nilai diarahkan ke netral (ink) dan champagne bronze, bukan warna lama. */
+  --color-parchment-50: #ffffff;
+  --color-parchment-100: #f7f7f6;
+  --color-parchment-200: #e2e0dd;
+  --color-parchment-300: #c8c5c0;
+
+  --color-gold-50: #fbf7ef;
+  --color-gold-100: #f2e5cf;
+  --color-gold-200: #e2c99b;
+  --color-gold-300: #cfaa67;
+  --color-gold-400: #b98e47;
+  --color-gold-500: #9a7441;
+  --color-gold-600: #7b5a35;
+  --color-gold-700: #60462d;
+  --color-gold-800: #443224;
+  --color-gold-900: #2c2119;
+
+  --color-jade-600: #52685a;
+  --color-jade-700: #405247;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(154, 116, 65, 0.07), transparent 34rem),
+    #ffffff;
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display: serif tegas, hanya untuk judul besar. */
+.font-display {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0;
+  font-optical-sizing: auto;
+}
+
+/* Rule tipis sebagai pemisah (pengganti border kartu). */
+.rule {
+  height: 1px;
+  background-color: var(--color-ink-200);
+}
+
+/* Eyebrow / label kecil dengan garis aksen. */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.premium-surface {
+  border: 1px solid rgba(200, 197, 192, 0.82);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(247, 247, 246, 0.78)),
+    #ffffff;
+  box-shadow: 0 24px 80px -56px rgba(12, 10, 9, 0.5);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Reveal-on-scroll: halus, sekali saja. */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tautan dengan underline yang tumbuh. */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

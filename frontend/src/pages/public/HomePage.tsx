@@ -1,237 +1,427 @@
 import { Link } from 'react-router-dom'
 import { useAsync } from '../../hooks/useAsync'
 import { useDocumentTitle } from '../../hooks/useDocumentTitle'
+import { useReveal } from '../../hooks/useReveal'
 import { getBanners, getFaqs } from '../../api/public'
 import { useSettings } from '../../context/SettingsContext'
 import { useAuth } from '../../context/AuthContext'
 import { ButtonLink } from '../../components/common/Button'
-import { Card, CardBody } from '../../components/common/Card'
 import { Section, SectionHeading } from '../../components/common/Section'
-import { LoadingBlock } from '../../components/common/Spinner'
 import { Price } from '../../components/common/Price'
-import { EmptyState } from '../../components/common/EmptyState'
+import { Icon, type IconName } from '../../components/common/Icon'
 import type { Service } from '../../lib/types'
 
-const FEATURES = [
-  { icon: '🚚', title: 'Antar Jemput Gratis', desc: 'Kami menjemput dan mengantar laundry Anda di area layanan.' },
-  { icon: '⏱️', title: 'Tepat Waktu', desc: 'Estimasi pengerjaan jelas dan bisa dipantau kapan saja.' },
-  { icon: '🧼', title: 'Bersih & Wangi', desc: 'Dicuci dengan deterjen berkualitas dan peralatan modern.' },
-  { icon: '⭐', title: 'Poin Loyalitas', desc: 'Kumpulkan poin setiap transaksi dan tukar dengan voucher.' },
-  { icon: '🎟️', title: 'Voucher & Promo', desc: 'Nikmati potongan harga menarik untuk setiap pesanan.' },
-  { icon: '💬', title: 'Konfirmasi WhatsApp', desc: 'Pesanan langsung terhubung ke WhatsApp cabang pilihan.' },
+/* -------------------------------------------------------------------------- */
+/* Konten                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const CAPABILITIES: { icon: IconName; title: string; desc: string }[] = [
+  {
+    icon: 'truck',
+    title: 'Antar jemput',
+    desc: 'Penjemputan dan pengantaran dijadwalkan online, langsung dari rumah atau kantor.',
+  },
+  {
+    icon: 'leaf',
+    title: 'Wet cleaning',
+    desc: 'Pencucian berbasis air yang lebih lembut untuk kain dan lebih ramah lingkungan.',
+  },
+  {
+    icon: 'shirt',
+    title: 'Dry cleaning',
+    desc: 'Perawatan khusus untuk jas, gaun, dan bahan sensitif dengan hasil rapi.',
+  },
+  {
+    icon: 'star',
+    title: 'Poin & membership',
+    desc: 'Setiap transaksi mengumpulkan poin dan membuka benefit keanggotaan.',
+  },
 ]
 
 const STEPS = [
-  { title: 'Pilih Layanan', desc: 'Tentukan cabang dan jenis layanan yang Anda butuhkan.' },
-  { title: 'Isi Detail Penjemputan', desc: 'Lengkapi alamat, jadwal jemput, dan catatan khusus.' },
-  { title: 'Konfirmasi via WhatsApp', desc: 'Booking tersimpan dan otomatis terkirim ke WhatsApp cabang.' },
+  {
+    title: 'Pilih cabang & layanan',
+    desc: 'Tentukan outlet terdekat, jenis layanan, dan paket perawatan yang Anda butuhkan.',
+  },
+  {
+    title: 'Atur jadwal jemput',
+    desc: 'Isi alamat, jadwal antar-jemput, dan catatan khusus untuk tim kami.',
+  },
+  {
+    title: 'Konfirmasi via WhatsApp',
+    desc: 'Pesanan tersimpan dan tersambung langsung ke WhatsApp outlet pilihan Anda.',
+  },
 ]
 
-function ServiceCard({ service }: { service: Service }) {
+const TRUST_MARKS = ['Fabric-safe process', 'Scheduled pickup', 'Quality checked']
+
+const CARE_NOTES = [
+  'Dipilah berdasarkan bahan, warna, dan instruksi perawatan.',
+  'Finishing dengan inspeksi akhir sebelum pengantaran.',
+  'Catatan khusus tersimpan di booking agar tim outlet tidak menebak-nebak.',
+]
+
+/* -------------------------------------------------------------------------- */
+/* Bagian UI                                                                  */
+/* -------------------------------------------------------------------------- */
+
+function ServiceRow({ service, index }: { service: Service; index: number }) {
   return (
-    <Card className="flex h-full flex-col">
-      <CardBody className="flex flex-1 flex-col">
-        <span className="inline-flex w-fit rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">
-          {service.category?.category_name ?? 'Layanan'}
-        </span>
-        <h3 className="mt-3 text-base font-semibold text-slate-900">{service.service_name}</h3>
-        <p className="mt-1 line-clamp-2 flex-1 text-sm text-slate-500">{service.description}</p>
-        <div className="mt-4 flex items-baseline gap-1">
-          <Price value={service.price} className="text-lg font-bold text-slate-900" />
-          {service.unit && <span className="text-sm text-slate-500">/{service.unit}</span>}
+    <article className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-x-6 gap-y-1 border-t border-ink-200 py-6 transition-colors hover:bg-ink-50/60">
+      <span className="font-display text-sm tabular-nums text-ink-400">
+        {String(index + 1).padStart(2, '0')}
+      </span>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-baseline gap-x-3">
+          <h3 className="font-display text-2xl leading-snug text-ink-900">
+            {service.service_name}
+          </h3>
+          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-ink-400">
+            {service.category?.category_name ?? 'Layanan'}
+          </span>
         </div>
-      </CardBody>
-    </Card>
+        {service.description && (
+          <p className="mt-1 line-clamp-1 text-sm text-ink-500">{service.description}</p>
+        )}
+      </div>
+      <div className="text-right">
+        <Price value={service.price} className="font-display text-xl text-ink-900" />
+        {service.unit && <span className="ml-1 text-sm text-ink-400">/ {service.unit}</span>}
+      </div>
+    </article>
   )
 }
 
-export function HomePage() {
-  useDocumentTitle('Beranda')
-  const { settings, companyProfile, stores } = useSettings()
+function Hero() {
+  const { companyProfile, stores } = useSettings()
   const { isAuthenticated } = useAuth()
   const { data: banners } = useAsync(() => getBanners(), [])
-  const { data: faqs } = useAsync(() => getFaqs(), [])
-
-  const popularServices =
-    stores.flatMap((store) => (store.services ?? []).slice(0, 3)).slice(0, 6)
-
   const banner = banners?.[0] ?? null
-  const siteName = settings?.name ?? companyProfile?.company_name ?? 'Washe'
+
+  const heroStore = stores.find((s) => s.whatsapp_number) ?? stores[0] ?? null
+  const bookingHref = isAuthenticated ? '/dashboard#booking' : '/register'
 
   return (
-    <>
-      {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-sky-600 via-sky-700 to-indigo-800 text-white">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:py-24">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
-              ✨ Laundry antar-jemput untuk hidup lebih mudah
-            </span>
-            <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              {banner?.title ?? `${siteName} — Bersih, Cepat, Terpercaya`}
-            </h1>
-            <p className="mt-4 max-w-lg text-base text-sky-100">
-              {banner?.subtitle ??
-                companyProfile?.description ??
-                'Pesan layanan laundry dan dry cleaning favorit Anda. Kami jemput, cuci, dan antar kembali ke depan pintu.'}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              {isAuthenticated ? (
-                <ButtonLink to="/dashboard/booking/new" variant="secondary" size="lg">
-                  Booking Sekarang
-                </ButtonLink>
-              ) : (
-                <ButtonLink to="/register" variant="secondary" size="lg">
-                  Mulai Booking
-                </ButtonLink>
-              )}
-              <ButtonLink
-                to="/layanan"
-                size="lg"
-                className="bg-white/10 text-white ring-1 ring-inset ring-white/30 hover:bg-white/20"
-              >
-                Lihat Layanan
-              </ButtonLink>
-            </div>
-            <p className="mt-4 text-xs text-sky-200">
-              Sudah punya akun?{' '}
-              <Link to="/login" className="font-semibold underline">
-                Masuk di sini
-              </Link>
-            </p>
+    <section className="border-b border-ink-200 bg-white">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:py-24">
+        <div className="reveal">
+          <span className="eyebrow text-accent-600">Laundry premium</span>
+
+          <h1 className="font-display text-balance mt-5 max-w-2xl text-5xl leading-[0.98] text-ink-950 sm:text-6xl lg:text-7xl">
+            {banner?.title ?? (
+              <>
+                Laundry bersih,
+                <br />
+                rapi, dan mudah.
+              </>
+            )}
+          </h1>
+
+          <p className="mt-6 max-w-xl text-base leading-8 text-ink-600">
+            {banner?.subtitle ??
+              companyProfile?.description ??
+              'Pesan laundry dan dry cleaning tanpa repot. Kami jemput, rawat, dan antar kembali pakaian Anda dengan proses yang jelas.'}
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <ButtonLink to={bookingHref} size="lg">
+              {isAuthenticated ? 'Buat booking' : 'Mulai booking'}
+              <Icon name="arrowRight" size={16} />
+            </ButtonLink>
+            <ButtonLink to="/layanan" variant="secondary" size="lg">
+              Lihat layanan
+            </ButtonLink>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {stores.slice(0, 2).map((store) => (
-              <div key={store.id} className="rounded-2xl bg-white/10 p-5 ring-1 ring-white/20">
-                <p className="text-sm font-semibold">{store.store_name}</p>
-                <p className="mt-1 text-xs text-sky-100">{store.city ?? store.address}</p>
-                <p className="mt-3 text-xs text-sky-200">{store.operating_hours ?? 'Jam operasional menyesuaikan'}</p>
-                <Link
-                  to={`/store/${store.id}`}
-                  className="mt-4 inline-block text-xs font-semibold text-white underline"
-                >
-                  Lihat cabang →
-                </Link>
-              </div>
+          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-500">
+            {TRUST_MARKS.map((mark) => (
+              <span key={mark} className="inline-flex items-center gap-2">
+                <span className="h-1.5 w-1.5 bg-accent-500" />
+                {mark}
+              </span>
             ))}
-            {stores.length === 0 && (
-              <div className="col-span-2 rounded-2xl bg-white/10 p-5 text-sm ring-1 ring-white/20">
-                Cabang segera hadir di kota Anda.
+          </div>
+        </div>
+
+        <div className="reveal">
+          <div className="border border-ink-200 bg-sand-50 p-6 sm:p-8">
+            <div className="flex items-center justify-between gap-6">
+              <div>
+                <span className="eyebrow text-ink-400">Ringkasan</span>
+                <h2 className="font-display mt-3 text-3xl leading-tight text-ink-950">
+                  Antar jemput, dry clean, wet clean.
+                </h2>
+              </div>
+              <Icon name="shirt" size={28} className="shrink-0 text-accent-600" />
+            </div>
+
+            <div className="mt-8 divide-y divide-ink-200 border-y border-ink-200">
+              {[
+                { label: 'Booking', value: 'Online' },
+                { label: 'Konfirmasi', value: 'WhatsApp' },
+                { label: 'Layanan', value: 'Laundry & dry cleaning' },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center justify-between gap-6 py-4 text-sm">
+                  <span className="text-ink-500">{item.label}</span>
+                  <span className="text-right font-medium text-ink-950">{item.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {heroStore && (
+              <div className="mt-6 flex items-center justify-between gap-4 text-sm">
+                <div className="flex min-w-0 items-center gap-2">
+                  <Icon name="mapPin" size={15} className="text-accent-600" />
+                  <span className="truncate text-ink-600">
+                    Terdekat: <span className="font-medium text-ink-950">{heroStore.store_name}</span>
+                  </span>
+                </div>
+                <Link to="/store" className="link-underline shrink-0 font-medium text-ink-900">
+                  Lihat outlet
+                </Link>
               </div>
             )}
           </div>
         </div>
       </div>
+    </section>
+  )
+}
 
-      {/* Features */}
-      <Section>
-        <SectionHeading
-          center
-          eyebrow="Kenapa Washe"
-          title="Layanan laundry yang bisa Anda andalkan"
-          description="Kami menggabungkan kualitas, kecepatan, dan kemudahan dalam satu pengalaman."
-        />
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-6">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-sky-50 text-xl">
-                {feature.icon}
+function CareStandards() {
+  return (
+    <Section>
+      <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div className="reveal lg:sticky lg:top-28">
+          <span className="eyebrow text-accent-600">Care standards</span>
+          <h2 className="font-display text-balance mt-4 text-4xl leading-none text-ink-950 sm:text-5xl">
+            Bukan sekadar dicuci. Setiap pesanan punya standar handling.
+          </h2>
+          <p className="mt-5 text-base leading-8 text-ink-600">
+            Tatanan layanan dibuat seperti workflow concierge: jelas, ringkas, dan mudah
+            ditelusuri dari booking sampai pakaian kembali.
+          </p>
+        </div>
+
+        <div className="grid gap-px bg-ink-200">
+          {CAPABILITIES.map((cap, i) => (
+            <article
+              key={cap.title}
+              className="reveal grid gap-5 bg-white p-6 sm:grid-cols-[auto_1fr] sm:p-8"
+              style={{ transitionDelay: `${i * 45}ms` }}
+            >
+              <span className="grid h-12 w-12 place-items-center border border-ink-200 bg-sand-50 text-accent-600">
+                <Icon name={cap.icon} size={21} />
               </span>
-              <h3 className="mt-4 text-base font-semibold text-slate-900">{feature.title}</h3>
-              <p className="mt-1 text-sm text-slate-500">{feature.desc}</p>
+              <div>
+                <h3 className="font-display text-3xl leading-none text-ink-950">{cap.title}</h3>
+                <p className="mt-3 max-w-xl text-sm leading-7 text-ink-600">{cap.desc}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+function ServiceConcierge({
+  services,
+  bookingHref,
+}: {
+  services: Service[]
+  bookingHref: string
+}) {
+  const fallbackServices = [
+    { name: 'Dry cleaning', desc: 'Perawatan kering untuk bahan sensitif dan pakaian formal.' },
+    { name: 'Wet cleaning', desc: 'Pencucian berbasis air yang ramah kain dan lingkungan.' },
+    { name: 'Shoe & bag care', desc: 'Perawatan khusus untuk sepatu dan tas kesayangan Anda.' },
+    { name: 'Alteration', desc: 'Permak dan penyesuaian ukuran oleh penjahit berpengalaman.' },
+  ]
+
+  return (
+    <Section className="border-y border-ink-200 bg-sand-50">
+      <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
+        <div className="reveal">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <span className="eyebrow text-accent-600">Signature services</span>
+              <h2 className="font-display text-balance mt-4 text-4xl leading-none text-ink-950 sm:text-5xl">
+                Pilih treatment, kami urus detailnya.
+              </h2>
+            </div>
+            <Link
+              to="/layanan"
+              className="link-underline inline-flex items-center gap-2 text-sm font-medium text-ink-900"
+            >
+              Semua layanan
+              <Icon name="arrowRight" size={15} />
+            </Link>
+          </div>
+
+          <div className="mt-10 border-y border-ink-200">
+            {services.length > 0 ? (
+              services.map((service, i) => (
+                <div key={service.id} className="reveal" style={{ transitionDelay: `${i * 40}ms` }}>
+                  <ServiceRow service={service} index={i} />
+                </div>
+              ))
+            ) : (
+              fallbackServices.map((item, i) => (
+                <article
+                  key={item.name}
+                  className="reveal grid gap-2 border-t border-ink-200 py-6 first:border-t-0 sm:grid-cols-[0.7fr_1fr]"
+                  style={{ transitionDelay: `${i * 40}ms` }}
+                >
+                  <h3 className="font-display text-3xl text-ink-950">{item.name}</h3>
+                  <p className="text-sm leading-7 text-ink-600">{item.desc}</p>
+                </article>
+              ))
+            )}
+          </div>
+        </div>
+
+        <aside className="reveal bg-ink-950 p-7 text-white sm:p-9 lg:sticky lg:top-28">
+          <span className="eyebrow text-accent-300">Booking flow</span>
+          <h3 className="font-display mt-4 text-4xl leading-none">Dari jadwal sampai konfirmasi.</h3>
+          <ol className="mt-9 space-y-6">
+            {STEPS.map((step, i) => (
+              <li key={step.title} className="grid grid-cols-[auto_1fr] gap-4 border-t border-white/12 pt-5">
+                <span className="font-display text-3xl leading-none text-white/28">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <h4 className="font-medium text-white">{step.title}</h4>
+                  <p className="mt-2 text-sm leading-6 text-white/58">{step.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <ButtonLink to={bookingHref} variant="accent" size="lg" className="mt-9 w-full">
+            Mulai booking
+            <Icon name="arrowRight" size={16} />
+          </ButtonLink>
+        </aside>
+      </div>
+    </Section>
+  )
+}
+
+function DetailNotes() {
+  return (
+    <Section>
+      <div className="reveal grid gap-px bg-ink-200 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="bg-white p-7 sm:p-10">
+          <span className="eyebrow text-accent-600">The detail work</span>
+          <h2 className="font-display text-balance mt-4 text-4xl leading-none text-ink-950 sm:text-5xl">
+            Detail kecil yang membuat hasil akhir terasa berbeda.
+          </h2>
+        </div>
+        <div className="grid gap-px bg-ink-200">
+          {CARE_NOTES.map((note, i) => (
+            <div key={note} className="bg-white p-6 sm:p-7">
+              <span className="font-display text-3xl text-accent-600">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p className="mt-3 text-sm leading-7 text-ink-600">{note}</p>
             </div>
           ))}
         </div>
+      </div>
+    </Section>
+  )
+}
+
+export function HomePage() {
+  useDocumentTitle('Beranda')
+  useReveal()
+  const { stores, settings } = useSettings()
+  const { isAuthenticated } = useAuth()
+  const { data: faqs } = useAsync(() => getFaqs(), [])
+
+  const popularServices = stores.flatMap((store) => (store.services ?? []).slice(0, 3)).slice(0, 6)
+  const bookingHref = isAuthenticated ? '/dashboard#booking' : '/register'
+
+  return (
+    <>
+      <Hero />
+
+      <CareStandards />
+      <ServiceConcierge services={popularServices} bookingHref={bookingHref} />
+      <DetailNotes />
+
+      <Section>
+        <div className="reveal grid gap-px bg-ink-200 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="bg-ink-950 p-7 text-white sm:p-10">
+            <span className="eyebrow text-accent-300">Store locator</span>
+            <h2 className="font-display mt-4 text-4xl leading-none sm:text-5xl">
+              Outlet dekat, proses tetap rapi.
+            </h2>
+          </div>
+          <div className="bg-white p-7 sm:p-10">
+            <p className="max-w-2xl text-base leading-8 text-ink-600">
+              Lihat daftar outlet lengkap dengan alamat, jam operasional, dan kontak. Setiap titik
+              tersambung ke Google Maps agar penjemputan lebih mudah diatur.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ButtonLink to="/store">Lihat semua outlet</ButtonLink>
+              <ButtonLink to="/kontak" variant="secondary">
+                Hubungi kami
+              </ButtonLink>
+            </div>
+          </div>
+        </div>
       </Section>
 
-      {/* Services */}
-      <Section className="pt-0">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <SectionHeading eyebrow="Layanan Populer" title="Pilihan layanan favorit" />
-          <Link to="/layanan" className="text-sm font-semibold text-sky-600 hover:text-sky-700">
-            Semua layanan →
-          </Link>
-        </div>
-        <div className="mt-8">
-          {popularServices.length > 0 ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {popularServices.map((service) => (
-                <ServiceCard key={service.id} service={service} />
+      {faqs && faqs.length > 0 && (
+        <Section className="border-y border-ink-200 bg-sand-50">
+          <div className="reveal grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
+            <div>
+              <SectionHeading eyebrow="FAQ" title="Yang sering ditanyakan" />
+            </div>
+            <div className="divide-y divide-ink-200 border-y border-ink-200">
+              {faqs.map((faq) => (
+                <details key={faq.id} className="group py-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-base font-medium text-ink-900">
+                    {faq.question}
+                    <Icon
+                      name="chevronDown"
+                      size={18}
+                      className="shrink-0 text-ink-400 transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-600">
+                    {faq.answer}
+                  </p>
+                </details>
               ))}
             </div>
-          ) : (
-            <EmptyState
-              title="Belum ada layanan"
-              description="Layanan akan segera ditampilkan di sini."
-              icon="🧺"
-            />
-          )}
-        </div>
-      </Section>
-
-      {/* Steps */}
-      <div className="bg-white">
-        <Section>
-          <SectionHeading center eyebrow="Cara Kerja" title="Pesan dalam 3 langkah mudah" />
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {STEPS.map((step, index) => (
-              <div key={step.title} className="relative rounded-2xl border border-slate-200 p-6">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-sky-600 text-sm font-bold text-white">
-                  {index + 1}
-                </span>
-                <h3 className="mt-4 text-base font-semibold text-slate-900">{step.title}</h3>
-                <p className="mt-1 text-sm text-slate-500">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <ButtonLink to={isAuthenticated ? '/dashboard/booking/new' : '/register'} size="lg">
-              {isAuthenticated ? 'Buat Booking Baru' : 'Daftar & Booking Sekarang'}
-            </ButtonLink>
-          </div>
-        </Section>
-      </div>
-
-      {/* FAQ */}
-      {faqs && faqs.length > 0 && (
-        <Section>
-          <SectionHeading center eyebrow="FAQ" title="Pertanyaan yang sering diajukan" />
-          <div className="mx-auto mt-8 max-w-3xl space-y-3">
-            {faqs.map((faq) => (
-              <details
-                key={faq.id}
-                className="group rounded-xl border border-slate-200 bg-white px-5 py-4"
-              >
-                <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold text-slate-800">
-                  {faq.question}
-                  <span className="text-slate-400 transition group-open:rotate-45">＋</span>
-                </summary>
-                <p className="mt-3 text-sm text-slate-500">{faq.answer}</p>
-              </details>
-            ))}
           </div>
         </Section>
       )}
 
-      {/* CTA */}
-      <Section>
-        <div className="rounded-3xl bg-slate-900 px-6 py-12 text-center text-white sm:px-12">
-          <h2 className="text-2xl font-bold sm:text-3xl">Siap menikmati laundry tanpa repot?</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-slate-300">
-            Daftar sekarang, pilih layanan, dan biarkan kami yang mengurus sisanya.
-          </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <ButtonLink to={isAuthenticated ? '/dashboard' : '/register'} variant="secondary" size="lg">
-              {isAuthenticated ? 'Buka Dashboard' : 'Daftar Gratis'}
-            </ButtonLink>
-            <ButtonLink
-              to="/kontak"
-              size="lg"
-              className="bg-white/10 text-white ring-1 ring-inset ring-white/30 hover:bg-white/20"
-            >
-              Hubungi Kami
-            </ButtonLink>
+      <Section className="bg-ink-950 text-white">
+        <div className="reveal grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <div>
+            <span className="eyebrow text-accent-300">Ready when you are</span>
+            <h2 className="font-display text-balance mt-4 text-4xl leading-none sm:text-6xl">
+              Serahkan cucian Anda, nikmati waktu Anda.
+            </h2>
+          </div>
+          <div>
+            <p className="max-w-xl text-base leading-8 text-ink-300">
+              Daftar sekarang, jadwalkan penjemputan, dan rasakan standar laundry premium dari{' '}
+              {settings?.name ?? 'Washe'}.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ButtonLink to={bookingHref} variant="accent" size="lg">
+                {isAuthenticated ? 'Buka dashboard' : 'Mulai booking'}
+                <Icon name="arrowRight" size={16} />
+              </ButtonLink>
+              <ButtonLink to="/kontak" variant="outlineLight" size="lg">
+                Hubungi kami
+              </ButtonLink>
+            </div>
           </div>
         </div>
       </Section>
@@ -239,8 +429,4 @@ export function HomePage() {
   )
 }
 
-export function PublicPageLoader() {
-  return <LoadingBlock />
-}
-
-export { ServiceCard }
+export { ServiceRow as ServiceCard }

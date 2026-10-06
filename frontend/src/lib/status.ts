@@ -15,33 +15,33 @@ export const BOOKING_STATUS_META: Record<
 > = {
   pending: {
     label: 'Menunggu Konfirmasi',
-    className: 'bg-amber-50 text-amber-700 ring-amber-200',
-    dot: 'bg-amber-500',
+    className: 'bg-gold-50 text-gold-800 ring-gold-200',
+    dot: 'bg-gold-500',
   },
   confirmed: {
     label: 'Dikonfirmasi',
-    className: 'bg-blue-50 text-blue-700 ring-blue-200',
-    dot: 'bg-blue-500',
+    className: 'bg-ink-50 text-ink-800 ring-ink-200',
+    dot: 'bg-ink-500',
   },
   picked_up: {
     label: 'Dijemput',
-    className: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
-    dot: 'bg-indigo-500',
+    className: 'bg-parchment-100 text-ink-700 ring-parchment-300',
+    dot: 'bg-ink-600',
   },
   in_progress: {
     label: 'Diproses',
-    className: 'bg-violet-50 text-violet-700 ring-violet-200',
-    dot: 'bg-violet-500',
+    className: 'bg-jade-600/10 text-jade-700 ring-jade-600/20',
+    dot: 'bg-jade-600',
   },
   completed: {
     label: 'Selesai',
-    className: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-    dot: 'bg-emerald-500',
+    className: 'bg-jade-600/10 text-jade-700 ring-jade-600/20',
+    dot: 'bg-jade-600',
   },
   delivered: {
     label: 'Diantar',
-    className: 'bg-teal-50 text-teal-700 ring-teal-200',
-    dot: 'bg-teal-500',
+    className: 'bg-gold-100 text-gold-800 ring-gold-200',
+    dot: 'bg-gold-600',
   },
   cancelled: {
     label: 'Dibatalkan',

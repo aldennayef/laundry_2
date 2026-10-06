@@ -14,6 +14,9 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const redirect = params.get('redirect') ?? '/dashboard'
+  // Pisahkan path dan hash agar deep-link seperti /dashboard#booking tetap
+  // menggulir ke bagian yang tepat setelah login.
+  const [redirectPath, redirectHash] = redirect.split('#')
 
   const [form, setForm] = useState({
     email: '',
@@ -42,7 +45,7 @@ export function RegisterPage() {
         password: form.password,
         password_confirmation: form.password_confirmation,
       })
-      navigate(redirect, { replace: true })
+      navigate(redirectHash ? `${redirectPath}#${redirectHash}` : redirectPath, { replace: true })
     } catch (err) {
       setError(extractErrorMessage(err))
     } finally {
@@ -59,7 +62,7 @@ export function RegisterPage() {
           Sudah punya akun?{' '}
           <Link
             to={`/login?redirect=${encodeURIComponent(redirect)}`}
-            className="font-semibold text-sky-600 hover:text-sky-700"
+            className="font-semibold text-gold-600 hover:text-gold-700"
           >
             Masuk
           </Link>

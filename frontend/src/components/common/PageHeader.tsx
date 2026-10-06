@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react'
 
+/**
+ * Header halaman publik/dashboard: eyebrow + judul besar + deskripsi.
+ * Dipisah dari konten oleh hairline, tanpa kartu.
+ */
 export function PageHeader({
   eyebrow,
   title,
@@ -12,15 +16,19 @@ export function PageHeader({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-wider text-sky-600">{eyebrow}</p>
-        )}
-        <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-slate-500">{description}</p>}
+    <div className="border-b border-ink-200 pb-10">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          {eyebrow && <span className="eyebrow text-accent-600">{eyebrow}</span>}
+          <h1 className="font-display mt-3 text-4xl leading-[1.08] text-ink-900 sm:text-5xl">
+            {title}
+          </h1>
+          {description && (
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-600">{description}</p>
+          )}
+        </div>
+        {action && <div className="shrink-0">{action}</div>}
       </div>
-      {action}
     </div>
   )
 }

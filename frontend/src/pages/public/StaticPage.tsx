@@ -18,9 +18,9 @@ export function StaticPage() {
       {error && <Alert tone="error">{error}</Alert>}
       {page && !loading && (
         <article>
-          <h1 className="text-3xl font-bold text-slate-900">{page.title}</h1>
+          <h1 className="font-display text-3xl font-medium text-ink-900">{page.title}</h1>
           <div
-            className="prose prose-slate mt-6 max-w-none text-slate-600"
+            className="prose prose-slate mt-6 max-w-none text-ink-600"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         </article>

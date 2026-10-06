@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { Icon } from './Icon'
 
 export function Modal({
   open,
@@ -6,47 +7,110 @@ export function Modal({
   title,
   children,
   footer,
+  size = 'md',
 }: {
   open: boolean
   onClose: () => void
   title: ReactNode
   children: ReactNode
   footer?: ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
   useEffect(() => {
     if (!open) return
+    previousFocusRef.current = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onCloseRef.current()
+        return
+      }
+
+      if (e.key !== 'Tab') return
+
+      const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )
+      if (!focusable || focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [open, onClose])
+    document.body.style.overflow = 'hidden'
+    window.setTimeout(() => {
+      panelRef.current
+        ?.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        )
+        ?.focus()
+    }, 0)
+
+    return () => {
+      document.removeEventListener('keydown', handler)
+      document.body.style.overflow = previousOverflow
+      previousFocusRef.current?.focus()
+    }
+  }, [open])
 
   if (!open) return null
 
+  const sizeClass = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-3xl',
+    xl: 'max-w-5xl',
+  }[size]
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-4 sm:items-center">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink-950/60 p-3 backdrop-blur-sm sm:items-center sm:p-4"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCloseRef.current()
+      }}
+    >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl"
+        ref={panelRef}
+        className={`flex max-h-[90vh] w-full ${sizeClass} flex-col overflow-hidden rounded-2xl bg-white shadow-2xl`}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+        <div className="flex shrink-0 items-center justify-between gap-4 border-b border-parchment-200 px-5 py-4 sm:px-6">
+          <h3 id={titleId} className="font-display min-w-0 text-xl font-medium text-ink-900">
+            {title}
+          </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink-400 transition-colors hover:bg-parchment-100 hover:text-ink-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink-500"
             aria-label="Tutup"
           >
-            <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-            </svg>
+            <Icon name="close" size={18} />
           </button>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">{children}</div>
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 px-5 py-3">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-parchment-200 bg-parchment-50 px-5 py-4 sm:px-6">
             {footer}
           </div>
         )}

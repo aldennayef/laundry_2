@@ -1,29 +1,26 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { createBooking } from '../../api/customer'
-import { extractErrorMessage } from '../../api/client'
-import { useAsync } from '../../hooks/useAsync'
-import { useDocumentTitle } from '../../hooks/useDocumentTitle'
-import { useSettings } from '../../context/SettingsContext'
-import { useAuth } from '../../context/AuthContext'
-import { getAddresses, getMyVouchers } from '../../api/customer'
-import { getStore } from '../../api/public'
-import { PageHeader } from '../../components/common/PageHeader'
-import { Card, CardBody, CardHeader } from '../../components/common/Card'
-import { Button, ExternalButtonLink } from '../../components/common/Button'
-import { Input, Select, Textarea } from '../../components/common/Field'
-import { Alert } from '../../components/common/Alert'
-import { LoadingBlock } from '../../components/common/Spinner'
-import { Price } from '../../components/common/Price'
-import { Modal } from '../../components/common/Modal'
-import { StatusBadge } from '../../components/common/StatusBadge'
-import { formatCurrency, todayIso } from '../../lib/format'
-import { buildWhatsAppUrl } from '../../lib/whatsapp'
-import type { Booking, VoucherRedemption } from '../../lib/types'
+import { useSearchParams } from 'react-router-dom'
+import { createBooking } from '../../../api/customer'
+import { extractErrorMessage } from '../../../api/client'
+import { useAsync } from '../../../hooks/useAsync'
+import { useSettings } from '../../../context/SettingsContext'
+import { useAuth } from '../../../context/AuthContext'
+import { getAddresses, getMyVouchers } from '../../../api/customer'
+import { getStore } from '../../../api/public'
+import { Card, CardBody, CardHeader } from '../../../components/common/Card'
+import { Button, ExternalButtonLink } from '../../../components/common/Button'
+import { Input, Select, Textarea } from '../../../components/common/Field'
+import { Alert } from '../../../components/common/Alert'
+import { LoadingBlock } from '../../../components/common/Spinner'
+import { Price } from '../../../components/common/Price'
+import { Modal } from '../../../components/common/Modal'
+import { StatusBadge } from '../../../components/common/StatusBadge'
+import { formatCurrency, todayIso } from '../../../lib/format'
+import { buildWhatsAppUrl } from '../../../lib/whatsapp'
+import type { Booking, VoucherRedemption } from '../../../lib/types'
+import { Icon } from '../../../components/common/Icon'
 
-export function NewBookingPage() {
-  useDocumentTitle('Booking Baru')
-  const navigate = useNavigate()
+export function NewBookingSection({ onViewBookings }: { onViewBookings?: () => void }) {
   const [params] = useSearchParams()
   const { user } = useAuth()
   const { stores, currency } = useSettings()
@@ -143,7 +140,6 @@ export function NewBookingPage() {
   if (stores.length === 0) {
     return (
       <div className="space-y-4">
-        <PageHeader eyebrow="Booking" title="Booking Baru" />
         <Alert tone="warning">
           Belum ada cabang aktif sehingga booking tidak dapat dibuat. Silakan hubungi admin.
         </Alert>
@@ -153,12 +149,6 @@ export function NewBookingPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        eyebrow="Booking"
-        title="Buat Booking Baru"
-        description="Isi detail penjemputan, lalu konfirmasi melalui WhatsApp."
-      />
-
       {error && <Alert tone="error">{error}</Alert>}
 
       <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-3">
@@ -207,8 +197,8 @@ export function NewBookingPage() {
               )}
 
               {selectedService && (
-                <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                  <p className="font-medium text-slate-800">{selectedService.service_name}</p>
+                <div className="rounded-xl bg-parchment-50 px-4 py-3 text-sm text-ink-600">
+                  <p className="font-medium text-ink-800">{selectedService.service_name}</p>
                   {selectedService.description && <p>{selectedService.description}</p>}
                   <p className="mt-1">
                     Harga: <Price value={selectedService.price} className="font-semibold" />
@@ -255,9 +245,9 @@ export function NewBookingPage() {
                       key={address.id}
                       type="button"
                       onClick={() => setCustAddress(address.address)}
-                      className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                      className="inline-flex items-center gap-1 rounded-full bg-parchment-100 px-3 py-1 text-xs font-medium text-ink-600 hover:bg-parchment-200"
                     >
-                      📍 {address.label ?? 'Alamat'}: {address.address.slice(0, 24)}
+                      <Icon name="mapPin" size={12} /> {address.label ?? 'Alamat'}: {address.address.slice(0, 24)}
                       {address.address.length > 24 ? '…' : ''}
                     </button>
                   ))}
@@ -305,12 +295,12 @@ export function NewBookingPage() {
             <CardHeader title="Voucher" description="Pilih voucher yang Anda miliki." />
             <CardBody className="space-y-3">
               {usableVouchers.length === 0 ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-ink-500">
                   Tidak ada voucher yang bisa dipakai untuk layanan ini.
                 </p>
               ) : (
                 <div className="space-y-2">
-                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-parchment-200 p-3 text-sm">
                     <input
                       type="radio"
                       name="voucher"
@@ -318,7 +308,7 @@ export function NewBookingPage() {
                       checked={voucherId === ''}
                       onChange={() => setVoucherId('')}
                     />
-                    <span className="font-medium text-slate-700">Tanpa voucher</span>
+                    <span className="font-medium text-ink-700">Tanpa voucher</span>
                   </label>
                   {usableVouchers.map((redemption) => {
                     const voucher = redemption.voucher
@@ -327,7 +317,7 @@ export function NewBookingPage() {
                       <label
                         key={redemption.id}
                         className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm ${
-                          eligible ? 'border-slate-200' : 'border-slate-100 opacity-60'
+                          eligible ? 'border-parchment-200' : 'border-parchment-200 opacity-60'
                         }`}
                       >
                         <input
@@ -339,9 +329,9 @@ export function NewBookingPage() {
                           onChange={() => setVoucherId(voucher.id)}
                         />
                         <span>
-                          <span className="block font-mono text-xs text-slate-400">{voucher.code}</span>
-                          <span className="block font-medium text-slate-700">{voucher.description}</span>
-                          <span className="block text-xs text-slate-500">
+                          <span className="block font-mono text-xs text-ink-400">{voucher.code}</span>
+                          <span className="block font-medium text-ink-700">{voucher.description}</span>
+                          <span className="block text-xs text-ink-500">
                             Min. belanja {formatCurrency(voucher.min_order_amount, currency)}
                             {!eligible && ' — belum memenuhi syarat'}
                           </span>
@@ -358,25 +348,25 @@ export function NewBookingPage() {
             <CardHeader title="Ringkasan" />
             <CardBody className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500">Estimasi</span>
-                <Price value={estimatedAmount} className="font-medium text-slate-800" />
+                <span className="text-ink-500">Estimasi</span>
+                <Price value={estimatedAmount} className="font-medium text-ink-800" />
               </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Diskon</span>
-                  <span className="font-medium text-emerald-600">
+                  <span className="text-ink-500">Diskon</span>
+                  <span className="font-medium text-jade-600">
                     -<Price value={discountAmount} />
                   </span>
                 </div>
               )}
-              <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                <span className="font-semibold text-slate-700">Total Estimasi</span>
-                <Price value={finalAmount} className="text-lg font-bold text-slate-900" />
+              <div className="flex items-center justify-between border-t border-parchment-200 pt-3">
+                <span className="font-semibold text-ink-700">Total Estimasi</span>
+                <Price value={finalAmount} className="text-lg font-bold text-ink-900" />
               </div>
               <Button type="submit" className="w-full" size="lg" loading={submitting}>
                 Buat Booking
               </Button>
-              <p className="text-center text-xs text-slate-400">
+              <p className="text-center text-xs text-ink-400">
                 Setelah tersimpan, Anda akan diarahkan ke WhatsApp cabang untuk konfirmasi.
               </p>
             </CardBody>
@@ -384,7 +374,18 @@ export function NewBookingPage() {
         </div>
       </form>
 
-      <SuccessModal booking={result} onClose={() => setResult(null)} onView={() => navigate('/dashboard/bookings')} />
+      <SuccessModal
+        booking={result}
+        onClose={() => setResult(null)}
+        onView={() => {
+          setResult(null)
+          if (onViewBookings) {
+            onViewBookings()
+            return
+          }
+          document.getElementById('pesanan')?.scrollIntoView({ behavior: 'smooth' })
+        }}
+      />
     </div>
   )
 }
@@ -410,7 +411,11 @@ function SuccessModal({
           <Button variant="ghost" onClick={onView}>
             Lihat Booking
           </Button>
-          {waUrl && <ExternalButtonLink href={waUrl}>💬 Konfirmasi via WhatsApp</ExternalButtonLink>}
+          {waUrl && (
+            <ExternalButtonLink href={waUrl}>
+              <Icon name="message" size={16} /> Konfirmasi via WhatsApp
+            </ExternalButtonLink>
+          )}
         </>
       }
     >
@@ -421,9 +426,9 @@ function SuccessModal({
           </Alert>
           <div className="flex items-center justify-between">
             <StatusBadge status={booking.status} />
-            <Price value={booking.final_amount} className="text-lg font-bold text-slate-900" />
+            <Price value={booking.final_amount} className="text-lg font-bold text-ink-900" />
           </div>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-ink-600">
             Silakan lanjutkan konfirmasi melalui WhatsApp cabang
             {booking.store?.store_name ? ` ${booking.store.store_name}` : ''} agar pesanan segera
             diproses.

@@ -29,23 +29,23 @@ export function ContactPage() {
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           {address && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs font-semibold uppercase text-slate-400">Alamat</p>
-              <p className="mt-1 text-sm text-slate-700">{address}</p>
+            <div className="rounded-2xl border border-parchment-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase text-ink-400">Alamat</p>
+              <p className="mt-1 text-sm text-ink-700">{address}</p>
             </div>
           )}
           {phone && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs font-semibold uppercase text-slate-400">Telepon</p>
-              <a href={`tel:${phone}`} className="mt-1 block text-sm text-sky-600 hover:text-sky-700">
+            <div className="rounded-2xl border border-parchment-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase text-ink-400">Telepon</p>
+              <a href={`tel:${phone}`} className="mt-1 block text-sm text-gold-600 hover:text-gold-700">
                 {phone}
               </a>
             </div>
           )}
           {email && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-xs font-semibold uppercase text-slate-400">Email</p>
-              <a href={`mailto:${email}`} className="mt-1 block text-sm text-sky-600 hover:text-sky-700">
+            <div className="rounded-2xl border border-parchment-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase text-ink-400">Email</p>
+              <a href={`mailto:${email}`} className="mt-1 block text-sm text-gold-600 hover:text-gold-700">
                 {email}
               </a>
             </div>
@@ -55,7 +55,7 @@ export function ContactPage() {
               href={`https://wa.me/${waNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-2xl bg-emerald-600 p-5 text-white transition hover:bg-emerald-700"
+              className="block rounded-2xl bg-jade-600 p-5 text-white transition hover:bg-jade-700"
             >
               <p className="text-xs font-semibold uppercase text-emerald-100">WhatsApp</p>
               <p className="mt-1 text-sm font-medium">Chat dengan kami sekarang →</p>
@@ -67,19 +67,19 @@ export function ContactPage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Pertanyaan Umum</h2>
+          <h2 className="font-display text-2xl font-medium text-ink-900">Pertanyaan Umum</h2>
           {loading && <LoadingBlock />}
           {faqs && faqs.length === 0 && (
-            <p className="mt-3 text-sm text-slate-500">Belum ada FAQ yang dipublikasikan.</p>
+            <p className="mt-3 text-sm text-ink-500">Belum ada FAQ yang dipublikasikan.</p>
           )}
           <div className="mt-4 space-y-3">
             {(faqs ?? []).map((faq) => (
-              <details key={faq.id} className="group rounded-xl border border-slate-200 bg-white px-5 py-4">
-                <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold text-slate-800">
+              <details key={faq.id} className="group rounded-xl border border-parchment-200 bg-white px-5 py-4">
+                <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold text-ink-800">
                   {faq.question}
-                  <span className="text-slate-400 transition group-open:rotate-45">＋</span>
+                  <span className="text-ink-400 transition group-open:rotate-45">＋</span>
                 </summary>
-                <p className="mt-3 text-sm text-slate-500">{faq.answer}</p>
+                <p className="mt-3 text-sm text-ink-500">{faq.answer}</p>
               </details>
             ))}
           </div>
